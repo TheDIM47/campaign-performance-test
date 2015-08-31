@@ -15,10 +15,10 @@ val campaign = Campaign("cmp004", 163.45, Seq(t1, t2, t3))
 val user = User("u3", Map("attr_A" -> "A3", "attr_B" -> "B3"))
 
 implicit def TargetAsDBObject(t: Target): MongoDBObject = {
-  MongoDBObject("_id" -> t.target, "attr_list" -> t.attrList)
+  MongoDBObject("target" -> t.target, "attr_list" -> t.attrList)
 }
 implicit def CampaignAsDBObject(c: Campaign): MongoDBObject = {
-  MongoDBObject("_id" -> c.campaignName, "price" -> c.price, "target_list" -> c.targetList.map(x => TargetAsDBObject(x)))
+  MongoDBObject("target" -> c.campaignName, "price" -> c.price, "target_list" -> c.targetList.map(x => TargetAsDBObject(x)))
 }
 val mongoHost: String = "localhost"
 val mongoPort: Int = 27017
@@ -31,13 +31,13 @@ val coll = db.apply("camapigns")
 //coll.drop()
 //val r1 = coll.insert(dbo:_*)
 //coll.createIndex(MongoDBObject("price" -> 1))
-//coll.createIndex(MongoDBObject("target_list._id" -> 1))
+//coll.createIndex(MongoDBObject("target_list.target" -> 1))
 //coll.createIndex(MongoDBObject("target_list.attr_list" -> 1))
 val r2 = coll.count()
 val r3 = coll.find().toList.mkString("\n")
-val r4 = coll.find("_id" $eq "cmp").toList.mkString("\n")
+val r4 = coll.find("target" $eq "cmp").toList.mkString("\n")
 //- the user’s profile “key” matched all the target “value” in the campaigns target list
-val q1 = "target_list._id" $all (user.profile.keys)
+val q1 = "target_list.target" $all (user.profile.keys)
 val q2 = "target_list.attr_list" $all (user.profile.values)
 val q3 = $and(q1, q2)
 val aggr = MongoDBObject("$group" -> MongoDBObject("price" -> -1, "last" -> MongoDBObject("$max" -> "$price")))

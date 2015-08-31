@@ -5,6 +5,7 @@ import java.util.Calendar
 import akka.actor.ActorRef
 import akka.util.Timeout
 import app.SearchActor
+import com.mongodb.casbah.{MongoCollection, MongoClient}
 import org.scalatest.prop.Configuration
 import org.scalatest.{Matchers, FlatSpec}
 import scala.language.existentials
@@ -23,7 +24,13 @@ trait TestService extends FlatSpec with ScalatestRouteTest with HttpService {
 
   val MongoHost = "localhost"
   val MongoPort = 27017
-  val searchActor: ActorRef = system.actorOf(SearchActor.props(MongoHost, MongoPort))
+
+    val mongo: MongoClient = MongoClient(host = MongoHost, port = MongoPort)
+    val db = mongo.getDB("test")
+    val coll:MongoCollection = db.apply("camapigns")
+
+//  val searchActor: ActorRef = system.actorOf(SearchActor.props(MongoHost, MongoPort))
+  val searchActor: ActorRef = system.actorOf(SearchActor.props(coll))
 
   val searchRoot = respondWithMediaType(MediaTypes.`application/json`) {
     path(IntNumber) { r =>

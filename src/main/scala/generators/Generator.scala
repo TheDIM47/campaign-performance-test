@@ -3,10 +3,6 @@ package generators
 import objects.{User, Campaign, Target}
 
 object Generator {
-  val MaxCampaigns = 1000
-  val MaxTargets = 26
-  val MaxAttributes = 100
-
   private val FIRST_CHAR = 'A'.asInstanceOf[Int]
   private val MAX_CHAR = 'Z'.asInstanceOf[Int]
   private val CHINTERVAL = 1 + MAX_CHAR - FIRST_CHAR
@@ -22,23 +18,25 @@ object Generator {
   }
 
   def genCampaign(c: Int, t: Int, a: Int): Seq[Campaign] = {
-    (1 to c).map(campaign => {
-      val name = s"campaign$campaign"
-      val price = 1.0 + Math.round(1000.0 * Math.random()) / 100.0
-      val nTargets = 1 + Math.round((t - 1) * Math.random()).toInt
-      val targets = genTargets(nTargets, a)
-      Campaign(name, price, targets)
-    })
+    for (campaign <- (1 to c))
+      yield Campaign(name = s"campaign$campaign",
+        price = genPrice,
+        targets = genTargets(genTargetLen(t), a)
+      )
   }
 
+  def genPrice: Double = Math.round(1.0 + 1000.0 * Math.random()) / 100.0
+
+  def genTargetLen(maxTargets: Int): Int = 1 + Math.round((maxTargets - 1) * Math.random()).toInt
+
   def genUser(t: Int): User = {
-    val nAttrs = t % CHINTERVAL
-    val attrs = (0 to nAttrs).map(x => {
-      val ch = ((x % CHINTERVAL) + FIRST_CHAR).asInstanceOf[Char]
-      val i = 1 + (t % 200)
+    val nAttrs = (t - 1) % CHINTERVAL
+    val attrs = for(x <- (0 to nAttrs)) yield {
+      val ch = (x + FIRST_CHAR).asInstanceOf[Char]
+      val i: Int = Math.round(Math.random() * 200.0).toInt
       (s"attr_$ch" -> s"$ch$i")
-    })
-    User(s"u${t + 1}", attrs.toMap[String, String])
+    }
+    User(s"u${t}", attrs.toMap[String, String])
   }
 
 }

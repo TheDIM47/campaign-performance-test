@@ -2,58 +2,51 @@ package app
 
 import java.util.Calendar
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{PoisonPill, Actor, ActorLogging, Props}
 import com.mongodb.casbah.Imports._
 import generators.Generator
+import objects.User
 
 object SearchActor {
-  def props(host: String, port: Int): Props = Props(classOf[SearchActor], host, port)
+//  def props(host: String, port: Int): Props = Props(classOf[SearchActor], host, port)
+  def props(coll:MongoCollection): Props = Props(classOf[SearchActor], coll)
 }
 
-class SearchActor(host: String, port: Int) extends Actor with ActorLogging {
+class SearchActor(coll:MongoCollection)
+// (host: String, port: Int)
+  extends Actor with ActorLogging {
   val NO_RESULTS = "{}"
-  val mongo: MongoClient = MongoClient(host = host, port = port)
-  val db = mongo.getDB("test")
-  val coll = db.apply("camapigns")
+//  val mongo: MongoClient = MongoClient(host = host, port = port)
+//  val db = mongo.getDB("test")
+//  val coll:MongoCollection = db.apply("camapigns")
 
   override def receive: Receive = {
-    case r: Int => {
-      val user = Generator.genUser(r)
+    case user: User => {
       log.debug(s"User: $user")
-      val q1 = "target_list._id" $eq user.profile.keys.toList.sorted.last
-      val q2 = "target_list.attr_list" $elemMatch(MongoDBObject("$eq" -> user.profile.values.toList.sorted.last))
-      val q3 = $and(q1, q2)
-//      val start = Calendar.getInstance.getTimeInMillis
-//{
-//        val count = coll.find(q3).limit(1)
-//        val stop = Calendar.getInstance.getTimeInMillis
-//        log.debug(s"Count search time: ${stop - start}")
-//        count
-//      }
-      val count = coll.find(q3).limit(1)
+      val qs = ("target_list.target" $in user.profile.keys.seq) ++
+          ("target_list.attr_list" $elemMatch(MongoDBObject("$in" -> user.profile.values.seq)))
+      val count = coll.find(qs).limit(1)
       if (count.underlying.hasNext) {
         val q4 = List(
-          MongoDBObject("$match" -> q3),
+          MongoDBObject("$match" -> qs),
           MongoDBObject("$sort" -> MongoDBObject("price" -> -1)),
           MongoDBObject("$limit" -> 1)
         )
-//        val start = Calendar.getInstance.getTimeInMillis
-        val searchResult = coll.aggregate(q4).results.headOption
-//        val stop = Calendar.getInstance.getTimeInMillis
-        searchResult match {
-          case Some(x) => sender ! x.toString
-          case None => sender ! NO_RESULTS
-        }
-//        log.debug(s"Search time: ${stop - start}")
+        val searchResult = coll.aggregate(q4).results.head.toString
+        sender ! searchResult
       } else {
         sender ! NO_RESULTS
       }
+      self ! PoisonPill
     }
-    case x => log.error(s"Invalid User ID [$x] from $sender")
+    case x => {
+      log.error(s"Invalid User ID [$x] from $sender")
+      self ! PoisonPill
+    }
   }
 
-  @throws[Exception](classOf[Exception])
-  override def postStop(): Unit = {
-    mongo.close()
-  }
+//  @throws[Exception](classOf[Exception])
+//  override def postStop(): Unit = {
+//    mongo.close()
+//  }
 }

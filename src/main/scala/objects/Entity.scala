@@ -1,10 +1,15 @@
 package objects
 
+import org.json4s.JsonFormat
+import spray.http.HttpRequest
+import spray.httpx.SprayJsonSupport
+import spray.httpx.unmarshalling.FromRequestUnmarshaller
+
 /** Campaign */
 
 case class Target(target: String, attrList: Seq[String])
 
-case class Campaign(campaignName: String, price: Double, targetList: Seq[Target])
+case class Campaign(name: String, price: Double, targets: Seq[Target])
 
 /** User */
 

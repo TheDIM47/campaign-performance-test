@@ -42,9 +42,9 @@ class GenTest extends FlatSpec with Matchers {
       assert(campaigns.size == i)
       for(k <- (0 until i)) {
         val c = campaigns(k)
-        assert(c.campaignName == ("campaign" + (k + 1)))
+        assert(c.name == ("campaign" + (k + 1)))
         assert(c.price > 0)
-        assert(c.targetList != Seq.empty[Target])
+        assert(c.targets != Seq.empty[Target])
       }
     }
   }

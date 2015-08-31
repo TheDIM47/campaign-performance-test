@@ -10,6 +10,9 @@ class JsonTest extends FlatSpec with Matchers {
   import org.json4s.jackson.JsonMethods._
   import org.json4s.jackson.Serialization
 
+  val MaxTargets = 10
+  val MaxAttributes = 20
+
   implicit val formats = Serialization.formats(NoTypeHints)
 
   "(De-)Serialization" should "work for all classes" in {
@@ -31,8 +34,8 @@ class JsonTest extends FlatSpec with Matchers {
 
   "Auto (De-)Serialization" should "work for all generated classes" in {
     for(c <- (2 to 50)) {
-      val t = 1 + Math.round((Generator.MaxTargets - 1) * Math.random()).toInt
-      val a = 1 + Math.round((Generator.MaxAttributes - 1) * Math.random()).toInt
+      val t = 1 + Math.round((MaxTargets - 1) * Math.random()).toInt
+      val a = 1 + Math.round((MaxAttributes - 1) * Math.random()).toInt
       val p = Generator.genCampaign(c, t, a)
       p.foreach(x => {
         val s = compact(render(Extraction.decompose(x)))

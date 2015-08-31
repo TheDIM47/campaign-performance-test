@@ -1,0 +1,19 @@
+[
+  {
+    "name": "campaign1",
+    "price": 0.25,
+    "targets": [
+      { "target": "attr_A", "attrList": ["A0","A1","A2","A3","A4","A5","A6","A7","A8","A9"] },
+      { "target": "attr_B", "attrList": ["B0","B1","B2","B3","B4","B5","B6","B7","B8","B9",
+        "B10","B11","B12","B13","B14","B15","B16"] }
+    ]
+  },
+  {
+    "name": "campaign2",
+    "price": 0.35,
+    "targets": [
+      { "target": "attr_A", "attrList": ["A0","A1","A2","A3","A4","A5","A6","A7","A8","A9",
+        "A10","A11","A12","A13","A14","A15","A16","A17","A18", "A19"] }
+    ]
+  }
+]
