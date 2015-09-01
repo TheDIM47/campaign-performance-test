@@ -31,6 +31,7 @@ trait TestService extends FlatSpec with ScalatestRouteTest with HttpService {
 
 //  val searchActor: ActorRef = system.actorOf(SearchActor.props(MongoHost, MongoPort))
   val searchActor: ActorRef = system.actorOf(SearchActor.props(coll))
+//  val searchActor: ActorRef = system.actorOf(SearchActor.props(db))
 
   val searchRoot = respondWithMediaType(MediaTypes.`application/json`) {
     path(IntNumber) { r =>

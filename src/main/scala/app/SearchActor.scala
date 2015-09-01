@@ -4,12 +4,14 @@ import java.util.Calendar
 
 import akka.actor.{PoisonPill, Actor, ActorLogging, Props}
 import com.mongodb.casbah.Imports._
+import com.mongodb.casbah.MongoDB
 import generators.Generator
 import objects.User
 
 object SearchActor {
 //  def props(host: String, port: Int): Props = Props(classOf[SearchActor], host, port)
   def props(coll:MongoCollection): Props = Props(classOf[SearchActor], coll)
+//  def props(db:MongoDB): Props = Props(classOf[SearchActor], db)
 }
 
 class SearchActor(coll:MongoCollection)

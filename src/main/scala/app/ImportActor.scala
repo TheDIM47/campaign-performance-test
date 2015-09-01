@@ -28,6 +28,7 @@ class ImportActor(host: String, port: Int, campaigns: Seq[Campaign]) extends Act
         coll.createIndex(MongoDBObject("price" -> -1))
         coll.createIndex(MongoDBObject("target_list.target" -> 1))
         coll.createIndex(MongoDBObject("target_list.attr_list" -> 1))
+//        coll.createIndex(MongoDBObject("target_list.target" -> 1, "target_list.attr_list" -> 1))
         log.info("Indexing completed")
         val t = Calendar.getInstance.getTimeInMillis - start
         sender ! s"Upload [${campaigns.size}] completed for $t msecs"

@@ -3,17 +3,14 @@ import java.util.Calendar
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.conversions.scala._
 RegisterConversionHelpers()
-
 case class Target(target: String, attrList: Seq[String])
 case class Campaign(campaignName: String, price: Double, targetList: Seq[Target])
 case class User(user: String, profile: Map[String, String])
-
 val t1 = Target("attr_A", List("A1", "B1", "C1"))
 val t2 = Target("attr_B", List("A2", "B2", "C2"))
 val t3 = Target("attr_C", List("A3", "B3", "C3"))
 val campaign = Campaign("cmp004", 163.45, Seq(t1, t2, t3))
 val user = User("u3", Map("attr_A" -> "A3", "attr_B" -> "B3"))
-
 implicit def TargetAsDBObject(t: Target): MongoDBObject = {
   MongoDBObject("target" -> t.target, "attr_list" -> t.attrList)
 }
@@ -28,7 +25,8 @@ val dbo = campaigns.map(CampaignAsDBObject(_))
 val mongo: MongoClient = MongoClient(host = mongoHost, port = mongoPort)
 val db = mongo.getDB("test")
 val coll = db.apply("camapigns")
-//coll.drop()
+coll.drop()
+coll.dropIndexes()
 //val r1 = coll.insert(dbo:_*)
 //coll.createIndex(MongoDBObject("price" -> 1))
 //coll.createIndex(MongoDBObject("target_list.target" -> 1))

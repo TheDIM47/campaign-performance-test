@@ -4,7 +4,7 @@ import akka.actor.{ActorRef, ActorSystem}
 import akka.util.{ByteString, Timeout}
 import app.CreateActor.{CreateDataRequest}
 import com.mongodb.DBObject
-import com.mongodb.casbah.{MongoClient, MongoCollection}
+import com.mongodb.casbah.{MongoDB, MongoClient, MongoCollection}
 import generators.Generator
 import mongo.Converters
 import objects.{Target, User, Campaign}
@@ -38,7 +38,7 @@ object CampaignServer extends App with SimpleRoutingApp {
   val MongoPort = 27017
 
   val mongo: MongoClient = MongoClient(host = MongoHost, port = MongoPort)
-  val db = mongo.getDB("test")
+  val db:MongoDB = mongo.getDB("test")
   val coll:MongoCollection = db.apply("camapigns")
 
   var userCounter: Int = 0
@@ -52,7 +52,22 @@ object CampaignServer extends App with SimpleRoutingApp {
           val user = Generator.genUser(userCounter)
 //          val searchActor: ActorRef = system.actorOf(SearchActor.props(MongoHost, MongoPort))
           val searchActor: ActorRef = system.actorOf(SearchActor.props(coll))
-          ((searchActor ? user)(Timeout(100.seconds))).mapTo[String]//[Option[DBObject]].map(_.toString)
+//          val searchActor: ActorRef = system.actorOf(SearchActor.props(db))
+          ((searchActor ? user)(Timeout(6.seconds))).mapTo[String] //[Option[DBObject]].map(_.toString)
+        }
+      }
+    }
+  }
+
+  // GET http://myhost:3000/search_random
+  def searchRandomRoot = path("search_random") {
+    get {
+      respondWithMediaType(MediaTypes.`application/json`) {
+        complete {
+          val num = Math.round(1000 * Math.random()).toInt
+          val user = Generator.genUser(num)
+          val searchActor: ActorRef = system.actorOf(SearchActor.props(coll))
+          ((searchActor ? user)(Timeout(6.seconds))).mapTo[String] //[Option[DBObject]].map(_.toString)
         }
       }
     }
@@ -62,12 +77,13 @@ object CampaignServer extends App with SimpleRoutingApp {
   def searchRoot = path("search") {
     post {
       import UserJsonProtocol._
-      entity(as[User]) { u =>
+      entity(as[User]) { user =>
         respondWithMediaType(MediaTypes.`application/json`) {
           complete {
 //            val searchActor: ActorRef = system.actorOf(SearchActor.props(MongoHost, MongoPort))
             val searchActor: ActorRef = system.actorOf(SearchActor.props(coll))
-            ((searchActor ? u)(Timeout(100.seconds))).mapTo[String]//[Option[DBObject]].map(_.toString)
+//            val searchActor: ActorRef = system.actorOf(SearchActor.props(db))
+            ((searchActor ? user)(Timeout(6.seconds))).mapTo[String] //[Option[DBObject]].map(_.toString)
           }
         }
       }
@@ -125,7 +141,20 @@ object CampaignServer extends App with SimpleRoutingApp {
     }
   }
 
+  // GET http://myhost:3000/empty
+  def emptyRoot = path("empty") {
+    get {
+      respondWithMediaType(MediaTypes.`application/json`) {
+        complete {
+          val emptyActor: ActorRef = system.actorOf(EmptyActor.props)
+          (emptyActor ? "None")(60.seconds).mapTo[String]
+        }
+      }
+    }
+  }
+
+
   startServer(interface = "localhost", port = 9080) {
-    importRoot ~ searchRoot ~ searchAutoRoot ~ createDataRoot ~ createUserRoot
+    searchRoot ~ searchAutoRoot ~ searchRandomRoot ~ createDataRoot ~ createUserRoot ~ emptyRoot ~ importRoot
   }
 }
