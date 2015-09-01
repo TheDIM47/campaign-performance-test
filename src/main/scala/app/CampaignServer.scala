@@ -20,7 +20,6 @@ object UserJsonProtocol extends DefaultJsonProtocol{
 }
 
 // http://104.236.14.157:9080/create
-// root/12345678
 object CampaignServer extends App with SimpleRoutingApp {
 
   import akka.pattern.ask
