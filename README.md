@@ -1,3 +1,5 @@
+See PerformanceTestProjectNew.pdf for details.
+
 open terminal, login to server:
 ```
 ssh root@104.236.14.157
