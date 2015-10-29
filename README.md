@@ -7,7 +7,7 @@ sbt run
 
 wrk installed on machine, so, you can login on second terminal and run your tests
 ```
-wrk -c 64 -d 10s http://localhost:9080/search_auto
+wrk -c 64 -d 10s http://104.236.14.157:9080/search_auto
 ```
 
 or, using remote connection
@@ -83,3 +83,9 @@ Running 10s test @ http://localhost:9080/empty
 Requests/sec:  85353.36
 Transfer/sec:      8.14MB
 ```
+
+you can also perform random user search (random user generation instead of incremental on /search_auto)
+```
+wrk -c 64 -d 10s http://104.236.14.157:9080/search_random
+```
+
