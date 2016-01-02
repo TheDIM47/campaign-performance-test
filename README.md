@@ -91,3 +91,62 @@ you can also perform random user search (random user generation instead of incre
 wrk -c 64 -d 10s http://104.236.14.157:9080/search_random
 ```
 
+New test: /counting
+
+```
+ab -k -n 100000 -c 1000 127.0.0.1:9080/counting
+This is ApacheBench, Version 2.3 <$Revision: 1528965 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 127.0.0.1 (be patient)
+Completed 10000 requests
+Completed 20000 requests
+Completed 30000 requests
+Completed 40000 requests
+Completed 50000 requests
+Completed 60000 requests
+Completed 70000 requests
+Completed 80000 requests
+Completed 90000 requests
+Completed 100000 requests
+Finished 100000 requests
+
+
+Server Software:        spray-can/1.3.3
+Server Hostname:        127.0.0.1
+Server Port:            9080
+
+Document Path:          /counting
+Document Length:        6 bytes
+
+Concurrency Level:      1000
+Time taken for tests:   1.345 seconds
+Complete requests:      100000
+Failed requests:        0
+Keep-Alive requests:    100000
+Total transferred:      17100000 bytes
+HTML transferred:       600000 bytes
+Requests per second:    74334.85 [#/sec] (mean)
+Time per request:       13.453 [ms] (mean)
+Time per request:       0.013 [ms] (mean, across all concurrent requests)
+Transfer rate:          12413.34 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    1  19.3      0    1024
+Processing:     2   13   5.0     12      47
+Waiting:        2   13   5.0     12      47
+Total:          2   13  20.0     12    1045
+
+Percentage of the requests served within a certain time (ms)
+  50%     12
+  66%     12
+  75%     13
+  80%     14
+  90%     20
+  95%     24
+  98%     32
+  99%     37
+ 100%   1045 (longest request)
+```

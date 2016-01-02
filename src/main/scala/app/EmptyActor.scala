@@ -10,7 +10,7 @@ object EmptyActor {
 class EmptyActor extends Actor with ActorLogging {
   override def receive: Receive = {
     case "None" => {
-      sender ! ""
+      sender ! "Echo"
       self ! PoisonPill
     }
   }

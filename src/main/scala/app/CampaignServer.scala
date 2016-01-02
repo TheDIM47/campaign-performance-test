@@ -1,5 +1,7 @@
 package app
 
+import java.util.concurrent.atomic.AtomicLong
+
 import akka.actor.{ActorRef, ActorSystem}
 import akka.util.{ByteString, Timeout}
 import app.CreateActor.{CreateDataRequest}
@@ -153,8 +155,17 @@ object CampaignServer extends App with SimpleRoutingApp {
     }
   }
 
+  def countingRoot = path("counting") {
+    get {
+        complete {
+          counter.incrementAndGet.toString
+        }
+    }
+  }
+
+  private val counter: AtomicLong = new AtomicLong(0L)
 
   startServer(interface = "localhost", port = 9080) {
-    searchRoot ~ searchAutoRoot ~ searchRandomRoot ~ createDataRoot ~ createUserRoot ~ emptyRoot ~ importRoot
+    countingRoot ~ emptyRoot ~ searchRoot ~ searchAutoRoot ~ searchRandomRoot ~ createDataRoot ~ createUserRoot ~ importRoot
   }
 }
